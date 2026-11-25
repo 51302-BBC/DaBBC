@@ -205,3 +205,10 @@ tr:last-child td { border-bottom: 0; }
   .task-ticket summary strong { font-size: .85rem; }
   .form-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+.role-switch { display: grid; gap: .1rem; font-size: .8rem; color: var(--muted); }
+.role-switch select { font-weight: 700; color: var(--ink); padding-block: .2rem; }
+@media (max-width: 480px) {
+  .header-inner { flex-wrap: wrap; gap: .4rem; }
+  .header-inner .profile { margin-inline-start: auto; }
+}

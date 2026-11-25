@@ -1,4 +1,4 @@
-import { previewData } from './preview.js';
+import { previewData, previewUser } from './preview.js';
 
 export function query(values) {
   const pairs = Object.entries(values).filter(([, value]) => value !== '' && value != null);
@@ -7,5 +7,5 @@ export function query(values) {
 
 export async function api(path, { method = 'GET' } = {}) {
   if (method !== 'GET') throw new Error('展示版僅供瀏覽，無法送出或儲存資料。');
-  return previewData(new URL(path, 'https://preview.invalid'));
+  return previewData(new URL(path, 'https://preview.invalid'), previewUser(new URL(location.href).searchParams.get('role')));
 }

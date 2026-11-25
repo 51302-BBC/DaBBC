@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { demoUser } from './preview.js';
+import { previewUser } from './preview.js';
 import { Dashboard } from './dashboard.jsx';
 import { ClientsPage, EmployeesPage, NotificationsPage, TasksPage } from './core-pages.jsx';
 import { RequestsPage } from './request-pages.jsx';
@@ -67,6 +67,19 @@ function Shell({ user }) {
     <header className="site-header"><div className="header-inner">
       <Brand />
       <div className="profile">
+        <label className="role-switch"><span>展示角色</span>
+          <select value={user.roles[0]} onChange={event => {
+            const role = event.target.value;
+            const target = new URL(location.href);
+            target.searchParams.set('role', role);
+            if (route !== 'profile' && !routes.some(([key, , , access]) => key === route && (!access || access.includes(role)))) {
+              target.hash = 'dashboard';
+            }
+            location.assign(target.href);
+          }}>
+            {Object.entries(roles).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+          </select>
+        </label>
         <a className="profile-link" href="#profile" aria-label={user.name + '的個人資料'} aria-current={route === 'profile' ? 'page' : undefined}>
           <span className="avatar" aria-hidden="true">{user.name?.[0] || '員'}</span>
           <span><strong>{user.name}</strong><small>{user.roles.map(role => roles[role] ?? role).join('、')}</small></span>
@@ -87,4 +100,4 @@ function Shell({ user }) {
   </>;
 }
 
-createRoot(document.getElementById('root')).render(<Shell user={demoUser} />);
+createRoot(document.getElementById('root')).render(<Shell user={previewUser(new URL(location.href).searchParams.get('role'))} />);
