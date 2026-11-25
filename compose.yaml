@@ -1,0 +1,58 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: accounting
+      POSTGRES_USER: accounting
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U accounting -d accounting"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://accounting:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/accounting
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
+      BOOTSTRAP_OWNER_EMAIL: ${BOOTSTRAP_OWNER_EMAIL:?Set BOOTSTRAP_OWNER_EMAIL in .env}
+      BOOTSTRAP_OWNER_PASSWORD: ${BOOTSTRAP_OWNER_PASSWORD:?Set BOOTSTRAP_OWNER_PASSWORD in .env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      SMTP_HOST: ${SMTP_HOST:-mail}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_FROM: ${SMTP_FROM:-accounting@example.test}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
+      ADMIN_REVIEW_ROUTING: ${ADMIN_REVIEW_ROUTING:-}
+      REPORT_FINALIZER_ROLE: ${REPORT_FINALIZER_ROLE:-}
+      TASK_CANCEL_POLICY: ${TASK_CANCEL_POLICY:-}
+      TASK_REOPEN_POLICY: ${TASK_REOPEN_POLICY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=3)"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+
+  web:
+    build: ./frontend
+    ports:
+      - "${WEB_BIND:-127.0.0.1:8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  mail:
+    image: axllent/mailpit:v1.24
+    profiles: [demo]
+    ports:
+      - "127.0.0.1:8025:8025"
+
+volumes:
+  database:

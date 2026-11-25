@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="zh-Hant" data-variant="H">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>會計事務所工作台｜前端原型</title>
+<!-- A–G 為歷史方案。H–J 共用任務流轉版面，供比較新版配色與資訊層次。 -->
+<style>
+:root{--bg:#f0f4f7;--paper:#fff;--ink:#172c3c;--muted:#506477;--line:#d8e2e9;--accent:#146780;--tint:#e2f2f6;--hero:#142e42;--onhero:#d0e3ef;--radius:8px;color-scheme:light}
+[data-variant=B]{--bg:#f4f6ee;--paper:#fcfdf8;--ink:#283627;--muted:#526149;--line:#d5decd;--accent:#355f39;--tint:#e6efdc;--hero:#e3edda;--onhero:#40563c;--radius:18px}
+[data-variant=C]{--bg:#1b2033;--paper:#262d45;--ink:#f5f4fe;--muted:#bdc6e0;--line:#454e6b;--accent:#e1caff;--tint:#3c3458;--hero:#303456;--onhero:#dad9f2;--radius:10px;color-scheme:dark}
+[data-variant=D]{--bg:#f7f2e8;--paper:#fffdf8;--ink:#183b50;--muted:#4d6675;--line:#e1dbd0;--accent:#206485;--tint:#e5f4fc;--hero:#d6edf9;--onhero:#385a70;--radius:12px}
+[data-variant=E]{--bg:#f5efe2;--paper:#fffaf0;--ink:#183349;--muted:#455c6c;--line:#d9cec0;--accent:#175b7b;--tint:#e0f0f7;--hero:#cde6f4;--onhero:#385a70;--radius:12px}
+[data-variant=F]{--bg:#f5f0e6;--paper:#fffdf8;--ink:#15364c;--muted:#455f71;--line:#d8e1e5;--accent:#125c81;--tint:#e0f0f9;--hero:#d8edf8;--onhero:#385a70;--radius:14px;
+  --attention-bg:#f8e9d2;--attention-text:#75451a;
+  --waiting-bg:#efefec;--waiting-text:#4a5660;
+  --active-bg:#e0f0fa;--active-text:#174f70;
+  --done-bg:#e5f1e8;--done-text:#285941}
+[data-variant=G]{--bg:#f8f1e5;--paper:#fffdf7;--ink:#15384f;--muted:#435d70;--line:#dcd8cc;--accent:#1c5f80;--tint:#dfedf6;--hero:#e0f0f9;--onhero:#385a70;--radius:12px}
+[data-variant=H]{--bg:#e9eff3;--paper:#fff;--ink:#102c43;--muted:#40596b;--line:#cbd8e0;--accent:#174f71;--tint:#e0eef7;--hero:#11334d;--onhero:#d7e9f4;--radius:14px;--attention-bg:#ffe3a6;--attention-text:#603b06;--waiting-bg:#e8eef2;--waiting-text:#354a58;--active-bg:#164d70;--active-text:#fff;--done-bg:#deeee7;--done-text:#235743}
+[data-variant=I]{--bg:#eef2ed;--paper:#fcfdf9;--ink:#293d36;--muted:#4d6157;--line:#d3ded5;--accent:#365e50;--tint:#e5efe8;--hero:#e3ede4;--onhero:#415c50;--radius:14px;--attention-bg:#f5ead9;--attention-text:#694a29;--waiting-bg:#f0f2ed;--waiting-text:#43544b;--active-bg:#e4eee7;--active-text:#305547;--done-bg:#edf1eb;--done-text:#3b5948}
+[data-variant=J]{--bg:#f3f1f7;--paper:#fff;--ink:#29233b;--muted:#554f65;--line:#ded9e7;--accent:#543684;--tint:#eee8f8;--hero:#eee8f8;--onhero:#4e4065;--radius:12px;--attention-bg:#f8ebd8;--attention-text:#654313;--waiting-bg:#fff;--waiting-text:#49435a;--active-bg:#fff;--active-text:#543684;--done-bg:#fff;--done-text:#355a46}
+*{box-sizing:border-box}
+html{scroll-padding:24px 0 86px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Noto Sans CJK TC","PingFang TC","Microsoft JhengHei",sans-serif}
+button,a,select{font:inherit;color:inherit}
+a{text-decoration:none}
+button,select{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+h1,h2,h3,p{margin:0}
+h1{font-size:clamp(28px,4vw,47px);line-height:1.25;letter-spacing:-.035em}
+h2{font-size:21px;line-height:1.35}
+h3{font-size:15px}
+small,.muted{color:var(--muted)}
+small{font-size:12px}
+.shell{max-width:1600px;margin:auto;min-height:100vh}
+main{min-width:0;padding:28px 34px 100px;display:grid;gap:20px;align-content:start}
+header{display:flex;align-items:center;gap:24px;padding:18px 30px;border-bottom:1px solid var(--line);background:var(--paper)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:750;white-space:nowrap}
+.mark{display:grid;place-items:center;width:34px;height:34px;background:var(--accent);color:var(--paper);border-radius:7px}
+nav{display:flex;gap:4px}
+nav a{padding:8px 10px;border-radius:6px;white-space:nowrap;color:var(--muted)}
+nav a:first-child{background:var(--tint);color:var(--accent);font-weight:700}
+.profile{margin-left:auto;display:flex;align-items:center;gap:9px;white-space:nowrap}
+.avatar{display:grid;place-items:center;background:var(--tint);color:var(--accent);border:1px solid var(--line);border-radius:50%;width:34px;height:34px;font-weight:800}
+.profile small{display:block}
+.page-title{display:flex;justify-content:space-between;align-items:end;gap:12px}
+.hero,.panel{border-radius:var(--radius);min-width:0}
+.hero{padding:24px 28px;background:var(--hero);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:14px}
+.hero p{color:var(--onhero);margin-top:6px}
+.hero h2{font-size:26px}
+.hero .action{background:#d9f2f9;color:#14384a;border:0}
+.panel{background:var(--paper);border:1px solid var(--line);overflow:hidden}
+.panel-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:62px;padding:13px 18px;border-bottom:1px solid var(--line)}
+.filter,.action{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:6px 10px}
+.action{font-weight:700;padding:9px 13px;white-space:nowrap}
+.row{display:flex;align-items:center;gap:12px;padding:11px 17px;min-height:54px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row strong,.row small{display:block}
+.row .badge{margin-left:auto}
+.badge{background:var(--tint);color:var(--accent);border-radius:5px;padding:3px 7px;font-size:12px;font-weight:700;white-space:nowrap}
+.badge.urgent{background:#f8e5d9;color:#8a3d20}
+.metric-bar{display:grid;grid-template-columns:repeat(3,1fr);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius)}
+.metric{padding:12px 18px;border-right:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.metric:last-child{border:0}
+.metric b{font-size:28px;line-height:1.15;font-variant-numeric:tabular-nums}
+.metric span{color:var(--muted);font-size:13px}
+.duo{display:grid;gap:18px;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);align-items:start}
+.column{display:grid;gap:16px;min-width:0}
+table{border-collapse:collapse;width:100%;text-align:left}
+th,td{border-bottom:1px solid var(--line);padding:10px 13px}
+th{font-size:12px;color:var(--muted);font-weight:600;background:var(--bg)}
+td:first-child{font-weight:700}
+td small{display:block;font-weight:400}
+tr:last-child td{border-bottom:0}
+td time{white-space:nowrap;font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+.list-help{padding:14px 18px;color:var(--muted)}
+.a{display:grid;grid-template-columns:186px minmax(0,1fr)}
+.a header{align-items:stretch;flex-direction:column;padding:24px 14px;border-bottom:0;border-right:1px solid var(--line)}
+.a nav{flex-direction:column}
+.a .profile{margin:auto 0 0;padding-bottom:65px}
+.b main{max-width:1200px;width:100%;margin:auto;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start}
+.b .page-title,.b .metric-bar{grid-column:1/-1}
+.b .hero{display:block;color:var(--ink);padding:27px}
+.b .hero h2{font-family:"Noto Serif CJK TC",serif;font-size:clamp(30px,5vw,49px)}
+.b .hero .action{margin-top:18px;background:var(--accent);color:#fff}
+.b .stamp{font-size:14px;margin-bottom:10px;color:var(--muted)}
+.b .metric-bar{background:transparent;border:0;border-top:1px solid var(--line);border-radius:0}
+.b .row{min-height:60px}
+.b .panel-heading{padding-inline:20px}
+.c header{background:#20263d}
+.c .hero{color:var(--ink);padding:14px 19px}
+.c .hero h2{font-size:16px}
+.c .hero .action{background:var(--accent);color:#26213b}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:12px}
+.lane{background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:9px;min-width:0}
+.lane h3{margin:0 0 8px;display:flex;justify-content:space-between;gap:5px}
+.ticket{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:13px;margin-bottom:7px}
+.ticket:last-child{margin-bottom:0}
+.ticket small{display:block}
+.d header{background:#fffcf4}
+.d main{max-width:1350px;width:100%;margin:auto}
+.d .hero{color:var(--ink);padding:16px 21px}
+.d .hero h2{font-size:17px}
+.d .hero .action{background:var(--accent);color:white}
+.d .lane{background:#f9f4ea}
+.d .lane h3{padding:2px 4px;color:#305671}
+.d .ticket{border-color:#e2e0d8}
+.d .duo{grid-template-columns:minmax(0,2.6fr) minmax(0,1fr)}
+.month-header{flex-wrap:wrap}
+.month-controls,.legend{display:flex;align-items:center;gap:8px}
+.month-controls button{min-width:34px;min-height:34px}
+.legend{flex-wrap:wrap;padding:9px 16px;border-bottom:1px solid var(--line);gap:10px 16px}
+.legend span{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:13px}
+.person{--event:#227fba}
+.holiday{--event:#ad5b30}
+.meeting{--event:#7853a3}
+.legend i,.marks i{display:block;background:var(--event);height:3px;border-radius:2px}
+.legend i{width:15px}
+.month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--line)}
+.weekday{background:#eef7fc;text-align:center;padding:7px 0;color:#385a70;font-size:12px}
+.day,.empty-day{min-width:0;min-height:50px;background:var(--paper)}
+.empty-day{background:#f8f5ee}
+.day{border:0;position:relative;text-align:left;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;padding:6px 9px}
+.day:hover,.day[aria-pressed=true]{background:#e5f4fc}
+.day:focus-visible{outline-offset:-3px;z-index:1}
+.day[aria-current=date] .date-number{border-radius:4px;background:#206485;color:#fff;padding:0 4px}
+.marks{display:flex;gap:3px;width:100%;min-height:3px}
+.marks i{flex:1}
+.day-detail{padding:10px 16px;border-top:1px solid var(--line)}
+.day-detail p{font-size:13px;color:var(--muted)}
+.day-detail ul{display:flex;flex-wrap:wrap;gap:5px 16px;list-style:none;margin:5px 0 0;padding:0;font-size:13px}
+.day-detail li{border-bottom:2px solid var(--event)}
+@media(max-width:760px){.d .duo{grid-template-columns:1fr}.d main{gap:14px}}
+@media(max-width:430px){.d .board{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:7px}.d .lane{padding:5px}.d .ticket{padding:5px;font-size:12px}.d .lane h3{font-size:12px;padding:0}.day{padding:5px;min-height:42px}.switcher small{display:none}}
+.switcher{position:fixed;z-index:5;left:50%;bottom:14px;transform:translateX(-50%);background:#11192b;color:#fff;border:1px solid #72819d;box-shadow:0 6px 20px #0004;border-radius:26px;padding:5px;display:flex;gap:4px;align-items:center;white-space:nowrap}
+.switcher button{border:0;background:transparent;color:inherit;padding:6px 10px;border-radius:20px;font-size:13px}
+.switcher button[aria-pressed=true]{background:#eaf0ff;color:#18233d;font-weight:700}
+.switcher button:focus-visible{outline-color:#eaf0ff}
+.switcher small{color:#c3cce0;margin-inline:6px}
+@media(max-width:1050px){header{gap:13px;padding-inline:18px;flex-wrap:wrap}header nav{order:3;flex-basis:100%;overflow:auto}.a header nav{order:0;flex-basis:auto}.a{grid-template-columns:155px minmax(0,1fr)}main{padding-inline:20px}.duo{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}}
+@media(max-width:760px){.a{display:block}.a header{flex-direction:row;border-right:0;border-bottom:1px solid var(--line)}.a header nav{order:3;flex-basis:100%;flex-direction:row}.a .profile{margin:0 0 0 auto;padding:0}.duo,.b main{grid-template-columns:1fr}.page-title{align-items:start}.a main{gap:14px}main{padding:18px 13px 92px;gap:14px}.metric{padding:9px;gap:6px}.metric b{font-size:22px}.hero{padding:16px 13px}.hero h2{font-size:20px}}
+@media(max-width:430px){.profile small{display:none}.board{grid-template-columns:1fr}.metric{display:block}.metric span{display:block}.panel-heading,.row{padding-inline:11px}th,td{padding:7px}td .badge{white-space:normal}.switcher{gap:0}.switcher button{padding-inline:6px}.switcher small{margin-inline:3px}}
+.redesign{accent-color:var(--accent)}
+.redesign ::selection{background:var(--hero);color:var(--ink)}
+.redesign main{width:100%;max-width:1280px;margin-inline:auto}
+.redesign .hero{color:var(--ink);padding:15px 20px}
+.redesign .hero h2{font-size:18px}
+.redesign .hero .action{background:var(--accent);color:#fff}
+.redesign .hero .action:disabled{background:var(--paper);color:var(--muted)}
+.redesign .page-title small,.redesign time,.redesign .date-number{font-variant-numeric:tabular-nums}
+.e .panel-heading,.e th{background:#f3eadb}
+.e td{padding-block:9px}
+.e .due-now{color:#8a3d20;font-weight:800}
+.e .duo{grid-template-columns:minmax(0,2fr) minmax(220px,1fr)}
+.e .date-number{font-weight:700}
+.f header{background:var(--paper)}
+.f .hero{border:1px solid #b7d8eb}
+.f .panel-heading{padding-block:15px}
+.f #tasks .panel-heading{border-bottom:0}
+.f .board{padding:0 14px 14px;gap:12px}
+.f .lane{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:0;overflow:hidden}
+.f .lane h3{align-items:center;margin:0;padding:9px 12px;background:var(--state-bg);color:var(--state-text)}
+.f .lane h3 span{min-width:1.55rem;text-align:center;border:1px solid currentColor;border-radius:6px;font-size:12px;font-variant-numeric:tabular-nums}
+.f .lane[data-state="待處理"]{--state-bg:var(--waiting-bg);--state-text:var(--waiting-text)}
+.f .lane[data-state="進行中"]{--state-bg:var(--active-bg);--state-text:var(--active-text)}
+.f .lane[data-state="已完成"]{--state-bg:var(--done-bg);--state-text:var(--done-text)}
+.f .ticket{border:0;border-bottom:1px solid var(--line);border-radius:0;margin:0;padding:11px 12px}
+.f .ticket:last-child{border-bottom:0}
+.f .ticket strong{font-size:14px}
+.f .ticket small{margin-top:2px}
+.f .ticket .deadline-today{display:inline-block;background:var(--attention-bg);color:var(--attention-text);border-radius:4px;padding:1px 5px;font-weight:700;margin-top:4px}
+.f details.ticket{padding:0}
+.f .ticket summary{list-style:none;cursor:pointer;padding:11px 34px 11px 12px;position:relative}
+.f .ticket summary::-webkit-details-marker{display:none}
+.f .ticket summary:hover,.f .ticket[open] summary{background:#f0f7fb}
+.f .ticket summary:focus-visible{outline-offset:-3px}
+.f .ticket summary::after{content:"";position:absolute;top:18px;right:15px;width:7px;height:7px;border:solid var(--accent);border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
+.f .ticket[open] summary::after{transform:translateY(4px) rotate(225deg)}
+.f .ticket-note{padding:9px 12px 11px;background:#f0f7fb;color:var(--ink);border-top:1px solid var(--line);font-size:13px}
+.f .ticket-note strong{display:block;color:var(--accent);font-size:12px;margin-bottom:2px}
+.f .lane[data-state="已完成"] .ticket-note{background:var(--done-bg)}
+.f .lane[data-state="已完成"] .ticket-note strong{color:var(--done-text)}
+.f #reviews .panel-heading{background:#fcf5e9}
+.f #reviews .panel-heading .badge{background:var(--attention-bg);color:var(--attention-text)}
+.f .day[aria-pressed=true]{background:var(--tint);box-shadow:inset 0 0 0 2px var(--accent)}
+.f .day-detail{background:#f3f8fb}
+.f .legend .holiday,.f .marks .holiday{height:4px;background:none;border-block:1px solid var(--event);border-radius:0}
+.f .legend .meeting,.f .marks .meeting{height:4px;background:none;border-bottom:3px dashed var(--event);border-radius:0}
+.f .duo{grid-template-columns:minmax(0,2.1fr) minmax(230px,1fr)}
+.h .hero{color:#fff;border-color:var(--hero);padding:21px 24px}
+.h .hero h2{font-size:20px}
+.h .hero .action{background:var(--attention-bg);color:var(--attention-text)}
+.h .hero .action:disabled{background:var(--paper);color:var(--muted)}
+.h .hero :focus-visible{outline-color:#fff}
+.h .lane[data-state="進行中"]{border-color:var(--active-bg)}
+.h #calendar .weekday{background:#e2edf5}
+.i .hero{border-color:var(--line)}
+.i .board{gap:0}
+.i .lane{border:0;border-radius:0}
+.i .lane+.lane{border-left:1px solid var(--line)}
+.i .lane h3{margin:0 6px;border-radius:6px}
+.i .lane h3 span{border-color:transparent}
+.i .ticket summary:hover,.i .ticket[open] summary,.i .ticket-note,.i .day-detail,.i #calendar .weekday{background:#eef4ef}
+.i #reviews .panel-heading{background:var(--paper)}
+.j main{gap:14px}
+.j .hero{border-color:var(--line)}
+.j .panel-heading{min-height:48px;padding-block:9px}
+.j .board{padding:0;gap:0;border-top:1px solid var(--line)}
+.j .lane{border:0;border-radius:0}
+.j .lane+.lane{border-left:1px solid var(--line)}
+.j .lane h3{border-bottom:1px solid var(--line);padding-block:8px}
+.j .lane h3 span{border:0}
+.j .ticket summary{padding-block:8px}
+.j .ticket summary:hover,.j .ticket[open] summary,.j .ticket-note,.j .day-detail{background:var(--tint)}
+.j #calendar .weekday,.j #reviews .panel-heading{background:var(--paper)}
+.j .day{min-height:42px}
+@media(max-width:430px){.i .lane+.lane,.j .lane+.lane{border-left:0;border-top:1px solid var(--line)}}
+.g{display:grid;grid-template-columns:190px minmax(0,1fr)}
+.g header{flex-direction:column;align-items:stretch;padding:24px 14px;border-right:1px solid var(--line)}
+.g nav{flex-direction:column;order:0;flex-basis:auto}
+.g .profile{margin:0;padding:10px 4px}
+.g main{max-width:1310px}
+.g .page-title h1{font-size:clamp(26px,3vw,38px)}
+.g .task-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--line);gap:1px}
+.g .task-group{padding:10px 14px;background:var(--paper)}
+.g .task-group h3{display:flex;justify-content:space-between;color:var(--accent)}
+.g .task-group p{font-size:13px;margin-top:4px}
+.g .task-group time{color:var(--muted);white-space:nowrap}
+.g .calendar-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(175px,27%)}
+.g .day-detail{border-top:0;border-left:1px solid var(--line);background:var(--tint);padding:16px}
+.g .day-detail ul{display:grid;gap:8px}
+.g .day-detail li{padding-bottom:5px}
+.g .day{min-height:57px}
+.switcher select{background:#11192b;color:#fff;border:1px solid #72819d;border-radius:16px;padding:4px;font-size:12px;max-width:94px}
+.switcher select:focus-visible{outline-color:#eaf0ff}
+@media(max-width:850px){.g{display:block}.g header{flex-direction:row;border-right:0}.g header nav{order:3;flex-basis:100%;flex-direction:row}.g .profile{margin-left:auto;padding:0}}
+@media(max-width:760px){.e .duo,.f .duo,.g .calendar-body{grid-template-columns:1fr}.g .day-detail{border-left:0;border-top:1px solid var(--line)}}
+@media(max-width:430px){.switcher button{font-size:12px;padding-inline:5px}.switcher select{max-width:78px}.g .task-group{padding:8px}.g .task-group p{font-size:12px}.g .day{min-height:42px}}
+</style>
+</head>
+<body>
+<div id="preview"></div>
+<div class="switcher" role="group" aria-label="切換工作台原型">
+  <small>設計原型</small>
+  <button type="button" data-step="-1" aria-label="上一款">‹</button>
+  <select id="originals" aria-label="查看歷史方案">
+    <option value="">歷史方案</option><option value="D">天藍原版</option><option value="A">帳務索引</option>
+    <option value="B">今日值勤</option><option value="C">進度看板</option>
+    <option value="E">到期核對</option><option value="F">任務流轉</option><option value="G">月曆排程</option>
+  </select>
+  <button type="button" data-choice="H" aria-pressed="true">Bolder</button>
+  <button type="button" data-choice="I" aria-pressed="false">Quieter</button>
+  <button type="button" data-choice="J" aria-pressed="false">Distill</button>
+  <button type="button" data-step="1" aria-label="下一款">›</button>
+</div>
+<script>
+const tasks = [
+  { name: "核對 10 月銷項發票", client: "禾川設計", date: "11/25", state: "進行中", urgent: true,
+    note: "把銷項發票清單與總帳逐筆對照，標記金額差異。" },
+  { name: "整理薪資扣繳明細", client: "橋森科技", date: "11/26", state: "待處理",
+    note: "依人員彙整薪資明細，核對各筆扣繳金額。" },
+  { name: "複核銀行調節表", client: "青嶼商行", date: "11/27", state: "進行中",
+    note: "比對對帳單與帳載餘額，確認未達帳項。" },
+  { name: "歸檔 9 月傳票", client: "禾川設計", date: "11/24", state: "已完成",
+    note: "傳票與附件已歸入 9 月資料夾。" }
+];
+const states = ["待處理", "進行中", "已完成"];
+const paletteVariants = ["H", "I", "J"];
+const taskFlowVariants = ["F", ...paletteVariants];
+const variants = ["A", "B", "C", "D", "E", "F", "G", ...paletteVariants];
+const names = { A: "帳務索引", B: "今日值勤", C: "進度看板", D: "天藍工作台", E: "到期核對", F: "任務流轉", G: "月曆排程", H: "Bolder", I: "Quieter", J: "Distill" };
+const categoryNames = { person: "人事", holiday: "假期", meeting: "會議" };
+const calendarEvents = {
+  "2026-10-30": [["meeting", "月結準備會議"]],
+  "2026-11-06": [["meeting", "案件進度會議"]],
+  "2026-11-12": [["person", "許芷晴請假，09:00–12:00"]],
+  "2026-11-18": [["meeting", "工時報表確認會議"]],
+  "2026-11-25": [["person", "張昀庭請假，09:00–12:00"], ["person", "吳承翰外出，14:00–16:00"], ["meeting", "全所週會，10:00–10:30"]],
+  "2026-11-27": [["holiday", "事務所排休（示範）"]],
+  "2026-12-04": [["meeting", "客戶案件交接會議"]]
+};
+const preview = document.querySelector("#preview");
+let variant = "A";
+let clock = "";
+let filter = "全部";
+let shownMonth = new Date(2026, 10, 1);
+let selectedDay = 25;
+
+function header() {
+  return `<header>
+    <a class="brand" href="#workspace"><span class="mark" aria-hidden="true">帳</span>會計事務所</a>
+    <nav aria-label="工作台導覽">
+      <a href="#workspace" aria-current="page">工作台</a><a href="#tasks">我的任務</a><a href="#attendance">出勤</a><a href="#reviews">待審申請</a><a href="#calendar">行事曆</a>
+    </nav>
+    <div class="profile"><span class="avatar" aria-hidden="true">林</span><div><strong>林以安</strong><small>主管、行政</small></div></div>
+  </header>`;
+}
+function title(label) {
+  return `<div class="page-title" id="workspace"><h1>${label}</h1><small>11 月 25 日（三）</small></div>`;
+}
+function metrics() {
+  return `<div class="metric-bar" aria-label="工作摘要">
+    <a class="metric" href="#tasks"><b>3</b><span>未完成任務</span></a>
+    <a class="metric" href="#reviews"><b>2</b><span>待審申請</span></a>
+    <a class="metric" href="#calendar"><b>2</b><span>今日請假或外出</span></a>
+  </div>`;
+}
+function attendance() {
+  return `<section class="hero" id="attendance" aria-labelledby="attendance-title">
+    <div>
+      ${variant === "B" ? '<div class="stamp">我的出勤</div>' : ""}
+      <h2 id="attendance-title">${clock ? "今日已上班打卡" : "今日尚未上班打卡"}</h2>
+      <p role="status" aria-live="polite">${clock ? `上班打卡 ${clock}（示範）` : "預定班表 09:00–18:00"}</p>
+    </div>
+    <button class="action" type="button" data-clock ${clock ? "disabled" : ""}>${clock ? "已打卡" : "上班打卡"}</button>
+  </section>`;
+}
+function reviews() {
+  return `<section class="panel" id="reviews">
+    <div class="panel-heading"><h2>待審申請</h2><span class="badge">2 件</span></div>
+    <div class="row"><div><strong>陳柏宇</strong><small>11/26 09:00–12:00</small></div><span class="badge">請假</span></div>
+    <div class="row"><div><strong>許芷晴</strong><small>11/24 下班缺卡</small></div><span class="badge">補打卡</span></div>
+  </section>`;
+}
+function calendar() {
+  return `<section class="panel" id="calendar">
+    <div class="panel-heading"><h2>公司行事曆</h2><small>今日</small></div>
+    <div class="row"><div><strong>張昀庭</strong><small>09:00–12:00</small></div><span class="badge">請假</span></div>
+    <div class="row"><div><strong>吳承翰</strong><small>14:00–16:00</small></div><span class="badge">外出</span></div>
+  </section>`;
+}
+function monthCalendar() {
+  const year = shownMonth.getFullYear();
+  const month = shownMonth.getMonth();
+  const leading = (shownMonth.getDay() + 6) % 7;
+  const days = new Date(year, month + 1, 0).getDate();
+  const total = Math.ceil((leading + days) / 7) * 7;
+  const eventsFor = day => calendarEvents[`${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`] ?? [];
+  const cells = Array.from({ length: total }, (_, index) => {
+    const day = index - leading + 1;
+    if (day < 1 || day > days) return '<span class="empty-day" aria-hidden="true"></span>';
+    const kinds = [...new Set(eventsFor(day).map(([kind]) => kind))];
+    const today = year === 2026 && month === 10 && day === 25;
+    const label = kinds.map(kind => categoryNames[kind]).join("、");
+    return `<button type="button" class="day" data-day="${day}" aria-pressed="${day === selectedDay}"
+      aria-label="${month + 1} 月 ${day} 日${label ? "，" + label : ""}" ${today ? 'aria-current="date"' : ""}>
+      <span class="date-number">${day}</span>
+      <span class="marks" aria-hidden="true">${kinds.map(kind => `<i class="${kind}"></i>`).join("")}</span>
+    </button>`;
+  }).join("");
+  const activeEvents = eventsFor(selectedDay);
+  return `<section class="panel" id="calendar" aria-labelledby="calendar-title">
+    <div class="panel-heading month-header"><h2 id="calendar-title">公司行事曆</h2>
+      <div class="month-controls">
+        <button class="filter" type="button" data-month="-1" aria-label="上個月">‹</button>
+        <strong aria-live="polite">${year} 年 ${month + 1} 月</strong>
+        <button class="filter" type="button" data-month="1" aria-label="下個月">›</button>
+      </div>
+    </div>
+    <div class="legend" aria-label="事件類別">${Object.entries(categoryNames).map(([kind, name]) => `<span><i class="${kind}" aria-hidden="true"></i>${name}</span>`).join("")}</div>
+    <div class="calendar-body"><div class="month-grid">
+      ${["一", "二", "三", "四", "五", "六", "日"].map(day => `<span class="weekday">${day}</span>`).join("")}
+      ${cells}
+    </div>
+    <div class="day-detail" aria-live="polite"><strong>${month + 1} 月 ${selectedDay} 日</strong>
+      ${activeEvents.length ? `<ul>${activeEvents.map(([kind, event]) => `<li class="${kind}">${categoryNames[kind]}｜${event}</li>`).join("")}</ul>` : "<p>這天沒有事件</p>"}
+    </div></div>
+  </section>`;
+}
+function visibleTasks() {
+  return filter === "全部" ? tasks : tasks.filter(task => task.state === filter);
+}
+function taskTable() {
+  const items = variant === "E" ? [...visibleTasks()].sort((a, b) =>
+    Number(a.state === "已完成") - Number(b.state === "已完成") || a.date.localeCompare(b.date)
+  ) : visibleTasks();
+  return `<table aria-label="我的任務"><thead><tr><th scope="col">任務與客戶</th><th scope="col">到期</th><th scope="col">狀態</th></tr></thead>
+  <tbody>${items.map(task => `<tr>
+    <td>${task.name}<small>${task.client}</small></td>
+    <td><time class="${task.urgent ? "due-now" : ""}">${task.date}</time>${variant === "E" && task.urgent ? "<small>今日到期</small>" : ""}</td><td><span class="badge ${task.urgent ? "urgent" : ""}">${task.state}</span></td>
+  </tr>`).join("")}</tbody></table>`;
+}
+function taskList() {
+  return visibleTasks().map(task => `<div class="row">
+    <div><strong>${task.name}</strong><small>${task.client}　${task.date} 到期</small></div>
+    <span class="badge ${task.urgent ? "urgent" : ""}">${task.state}</span>
+  </div>`).join("");
+}
+function board() {
+  const expandable = taskFlowVariants.includes(variant);
+  return `<div class="board">${states.filter(state => filter === "全部" || state === filter).map(state => {
+    const items = tasks.filter(task => task.state === state);
+    return `<div class="lane" data-state="${state}"><h3>${state}<span>${items.length}</span></h3>
+      ${items.map(task => {
+        const deadline = expandable && task.urgent ? '<small class="deadline-today">今日到期</small>' : `<small>${task.date} 到期</small>`;
+        const overview = `<strong>${task.name}</strong><small>${task.client}</small>${deadline}`;
+        if (!expandable) return `<div class="ticket">${overview}</div>`;
+        return `<details class="ticket"><summary>${overview}</summary>
+          <div class="ticket-note"><strong>${state === "已完成" ? "歸檔紀錄" : "下一步"}</strong>${task.note}</div>
+        </details>`;
+      }).join("")}
+    </div>`;
+  }).join("")}</div>`;
+}
+function taskContent() {
+  if (taskFlowVariants.includes(variant)) return board();
+  return { A: taskTable, B: taskList, C: board, D: board, E: taskTable, G: taskSummary }[variant]();
+}
+function taskSummary() {
+  return `<div class="task-summary">${states.filter(state => filter === "全部" || state === filter).map(state => {
+    const items = tasks.filter(task => task.state === state);
+    return `<section class="task-group"><h3>${state}<span>${items.length}</span></h3>
+      ${items.map(task => `<p>${task.name} <time>${task.date}</time></p>`).join("")}</section>`;
+  }).join("")}</div>`;
+}
+function taskPanel() {
+  return `<section class="panel" id="tasks"><div class="panel-heading">
+    <h2>${["A", "B"].includes(variant) ? "我的任務" : "我的任務進度"}</h2>
+    <select class="filter" aria-label="依任務狀態篩選">
+      ${["全部", ...states].map(state => `<option ${state === filter ? "selected" : ""}>${state}</option>`).join("")}
+    </select>
+  </div><div id="task-content">${taskContent()}</div></section>`;
+}
+function layouts() {
+  if (taskFlowVariants.includes(variant)) {
+    return `${title("工作台")}${attendance()}${taskPanel()}<div class="duo">${monthCalendar()}${reviews()}</div>`;
+  }
+  return {
+    A: () => `${title("工作台")}${metrics()}<div class="duo"><div class="column">${taskPanel()}${attendance()}</div><div class="column">${reviews()}${calendar()}</div></div>`,
+    B: () => `${title("今日工作")}<div class="column">${attendance()}${reviews()}</div><div class="column">${calendar()}${taskPanel()}</div>${metrics()}`,
+    C: () => `${title("工作進度")}${attendance()}${metrics()}<div class="duo">${taskPanel()}<div class="column">${reviews()}${calendar()}</div></div>`,
+    D: () => `${title("工作台")}${attendance()}<div class="duo">${taskPanel()}${reviews()}</div>${monthCalendar()}`,
+    E: () => `${title("工作台")}${attendance()}<div class="duo">${taskPanel()}${reviews()}</div>${monthCalendar()}`,
+    G: () => `${title("工作台")}${attendance()}${taskPanel()}${monthCalendar()}${reviews()}`
+  }[variant]();
+}
+function render() {
+  document.documentElement.dataset.variant = variant;
+  document.title = `${names[variant]}｜會計事務所工作台原型`;
+  const isPalette = paletteVariants.includes(variant);
+  const classes = [variant.toLowerCase()];
+  if (isPalette) classes.push("f");
+  if (isPalette || ["E", "F", "G"].includes(variant)) classes.push("redesign");
+  preview.innerHTML = `<div class="shell ${classes.join(" ")}">${header()}<main>${layouts()}</main></div>`;
+  document.querySelector("#originals").value = isPalette ? "" : variant;
+  for (const button of document.querySelectorAll("[data-choice]")) {
+    button.setAttribute("aria-pressed", String(button.dataset.choice === variant));
+  }
+}
+function selectVariant(choice, updateUrl = true) {
+  variant = variants.includes(choice) ? choice : "H";
+  if (updateUrl) {
+    const url = new URL(location.href);
+    url.searchParams.set("variant", variant);
+    url.hash = "";
+    history.replaceState(null, "", url);
+    window.scrollTo(0, 0);
+  }
+  render();
+}
+function stepVariant(step) {
+  const position = paletteVariants.indexOf(variant);
+  selectVariant(position < 0 ? paletteVariants[step < 0 ? paletteVariants.length - 1 : 0] :
+    paletteVariants[(position + step + paletteVariants.length) % paletteVariants.length]);
+}
+document.querySelector("#originals").addEventListener("change", event => selectVariant(event.target.value));
+document.querySelector(".switcher").addEventListener("click", event => {
+  const button = event.target.closest("button");
+  if (button?.dataset.choice) selectVariant(button.dataset.choice);
+  if (button?.dataset.step) stepVariant(Number(button.dataset.step));
+});
+document.addEventListener("keydown", event => {
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey ||
+      event.target.closest?.("input, textarea, select, [contenteditable]")) return;
+  if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    event.preventDefault();
+    stepVariant(event.key === "ArrowLeft" ? -1 : 1);
+  }
+});
+preview.addEventListener("change", event => {
+  if (!event.target.matches(".filter")) return;
+  filter = event.target.value;
+  document.querySelector("#task-content").innerHTML = taskContent();
+});
+preview.addEventListener("click", event => {
+  const calendarButton = event.target.closest("[data-month], [data-day]");
+  if (calendarButton) {
+    const { month, day } = calendarButton.dataset;
+    if (month) {
+      shownMonth = new Date(shownMonth.getFullYear(), shownMonth.getMonth() + Number(month), 1);
+      selectedDay = 1;
+    } else {
+      selectedDay = Number(day);
+    }
+    document.querySelector("#calendar").outerHTML = monthCalendar();
+    document.querySelector(month ? `[data-month="${month}"]` : `[data-day="${day}"]`).focus({ preventScroll: true });
+    return;
+  }
+  if (!event.target.closest("[data-clock]")) return;
+  clock = new Intl.DateTimeFormat("zh-TW", {
+    hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Asia/Taipei"
+  }).format(new Date());
+  document.querySelector("#attendance").outerHTML = attendance();
+  document.querySelector("#attendance-title").setAttribute("tabindex", "-1");
+  document.querySelector("#attendance-title").focus();
+});
+selectVariant(new URL(location.href).searchParams.get("variant"), false);
+</script>
+</body>
+</html>
