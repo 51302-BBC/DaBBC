@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api, query } from './api.js';
 import { formatDateTime, monthDates, taipeiDate } from './dates.js';
-import { Badge, Feedback, PageTitle, Section, StateNotice, kindLabels, taskStatuses, useAction, useData } from './ui.jsx';
+import { Badge, Feedback, PageTitle, Section, StateNotice, Table, kindLabels, taskStatuses, useAction, useData } from './ui.jsx';
 
 const calendarCategories = { personnel: '人事', holiday: '假期', meeting: '會議' };
 const flowStates = ['pending', 'in_progress', 'completed'];
@@ -110,6 +110,20 @@ export function Calendar({ revision, actions }) {
   </Section>;
 }
 
+function LeaveSummary({ revision }) {
+  const balances = useData('/leave-balances', revision);
+  const hours = minutes => minutes == null ? '—' : (minutes / 60).toLocaleString('zh-TW') + ' 小時';
+  return <Section title="請假種類與時數" action={<a href="#balances">查看明細</a>}>
+    <StateNotice state={balances} empty="目前尚未設定個人假別。" />
+    {Boolean(balances.data?.length) && <Table name="我的請假時數" rows={balances.data} columns={[
+      { label: '假別', render: row => row.name },
+      { label: '剩餘可用', render: row => <strong>{row.requires_balance ? hours(row.remaining_minutes) : '無需額度'}</strong> },
+      { label: '已使用', render: row => hours(row.used_minutes) },
+      { label: '待審保留', render: row => hours(row.reserved_minutes) },
+    ]} />}
+  </Section>;
+}
+
 export function Dashboard({ user, revision, update }) {
   const tasks = useData('/tasks', revision);
   const canReview = user.roles.some(role => ['owner', 'manager', 'admin'].includes(role));
@@ -131,5 +145,6 @@ export function Dashboard({ user, revision, update }) {
         <div className="panel-foot"><a href={canReview ? '#reviews' : '#requests'}>查看申請</a></div>
       </Section>
     </div>
+    <LeaveSummary revision={revision} />
   </>;
 }

@@ -39,7 +39,13 @@ const attendance = employees.map(person => ({
   date: today, clock_in: today + 'T08:5' + person.id + ':00+08:00',
   status: 'present', employee_id: person.id, employee_name: person.name,
 }));
-const leaveType = { id: 1, name: '特別休假', requires_balance: true };
+const leaveTypes = ['特別休假', '補休'].map((name, index) => ({ id: index + 1, name, requires_balance: true }));
+const leaveHours = {
+  1: [[56, 8, 0], [12, 4, 0]],
+  2: [[80, 16, 0], [8, 2, 0]],
+  3: [[56, 4, 8], [6, 1.5, 0]],
+  4: [[72, 12, 0], [8, 4, 0]],
+};
 const events = [
   { date: today, category: 'meeting', title: '月結進度會議' },
   { date: month + '-12', category: 'personnel', title: '江立禾 · 外出訪視' },
@@ -47,8 +53,7 @@ const events = [
 ];
 const data = {
   '/schedule': { weekdays: [0, 1, 2, 3, 4], start_time: '09:00', end_time: '18:00', break_minutes: 60 },
-  '/delegates': [], '/leave-types': [leaveType],
-  '/leave-balances': [{ ...leaveType, total_minutes: 3360, used_minutes: 480, reserved_minutes: 0, remaining_minutes: 2880 }],
+  '/delegates': [], '/leave-types': leaveTypes,
 };
 
 export function previewData({ pathname, searchParams }, user) {
@@ -60,6 +65,13 @@ export function previewData({ pathname, searchParams }, user) {
   const team = employees.filter(person => person.id === user.id || role === 'manager' && person.supervisor_id === user.id);
   const visibleTasks = tasks.filter(task => role === 'owner' || task.created_by === user.id || team.some(person => person.id === task.assignee_id));
   switch (pathname) {
+    case '/leave-balances': {
+      const id = ['owner', 'admin'].includes(role) && searchParams.get('employee_id') || user.id;
+      return (leaveHours[id] ?? []).map(([total, used, reserved], index) => ({
+        ...leaveTypes[index], total_minutes: total * 60, used_minutes: used * 60,
+        reserved_minutes: reserved * 60, remaining_minutes: (total - used - reserved) * 60,
+      }));
+    }
     case '/employees': return ['owner', 'admin'].includes(role) ? employees : team;
     case '/tasks': return visibleTasks;
     case '/clients': return clients.filter(client => ['owner', 'admin'].includes(role) ||
